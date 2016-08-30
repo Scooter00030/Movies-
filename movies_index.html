@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Movies </title>
+	<script   src="http://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
+
+</head>
+<body>
+	<div>
+		<div id="user-checkouts"></div>
+	</div>
+	<div>
+		<div id="month-checkouts"></div>
+	</div>
+	<div>
+		<div id="title-checkouts"></div>
+	</div>
+	<script>
+		var getUserInfo = function (){
+			$.ajax({
+				url: "http://159.203.175.239:8080/checkouts.txt",
+				method: "GET",
+				success: function(data){
+					crunchUserData(data);
+				},
+					error: function(data){
+						console.log("There was an error with the ajax request.");
+					}
+			});
+		};
+	
+		var getMovieInfo = function (movieId){
+			$.ajax({
+				url: "http://159.203.175.239:8080/movies.txt",
+				method: "GET",
+				success: function(data){
+					crunchMovieInfo(data, movieId);
+				},
+					error: function(data){
+						console.log("There was an error with the ajax request.");
+					}
+			});
+		};
+
+		var crunchUserData = function(data){
+				var allUsers = {};
+				
+				var frequentUser;
+				var maxVisits = 0;
+
+				var frequentMonth;
+				var maxMonthRentals = 0;
+
+				var maxMovieId = 0;
+				var maxMovieFreq = 0;
+
+				var userArray = data.split("\n");
+				for (var i = 0; i < userArray.length; i++){
+					var checkOut = userArray[i].split(" ");
+					var user = checkOut[0];
+						if (allUsers[user] === undefined){
+							allUsers[user] = 1;
+						} else {
+							allUsers[user] += 1;
+							if (allUsers[user] > maxVisits){
+								maxVisits = allUsers[user];
+								frequentUser = user;
+							}
+								
+						}
+					var month = checkOut[1];
+						if (allUsers[month] === undefined){
+							allUsers[month] = 1;
+						} else {
+							allUsers[month] += 1;
+							if (allUsers[month] > maxMonthRentals){
+								maxMonthRentals = allUsers[month];
+								frequentMonth = month;
+							}
+								
+						}
+					var movieId = checkOut[2];
+						if (allUsers[movieId] === undefined){
+							allUsers[movieId] = 1;
+						} else {
+							allUsers[movieId] += 1;
+							if (allUsers[movieId] > maxMovieFreq){
+								maxMovieFreq = allUsers[movieId];
+								maxMovieId = movieId;
+							}
+							
+				}
+
+		};	$('#user-checkouts').html(frequentUser);
+			getMovieInfo(maxMovieId);
+			$('#month-checkouts').html(frequentMonth);			
+};
+		var crunchMovieInfo = function(data, maxMovieId){
+			var movieArray = data.split("\n");
+				console.log(movieArray);
+				var wild = movieArray[169];
+				var theMovie = wild.split(" ").slice(1,4).join(" ");
+			$('#title-checkouts').html(theMovie);			
+		};
+		
+		function callBoth(){
+			getUserInfo();
+		};
+
+		$(document).ready(callBoth);
+		
+	</script>
+</body>
+	
+</html>
